@@ -60,10 +60,6 @@ class ELFIdent(object):
 
     @classmethod
     def is_elf(cls, data):
-        print cls.EI_MAG0(data)
-        print cls.EI_MAG1(data)
-        print cls.EI_MAG2(data)
-        print cls.EI_MAG3(data)
         return ((cls.EI_MAG0(data) == "7f") and
                 (cls.EI_MAG1(data) == 69) and
                 (cls.EI_MAG2(data) == 76) and
