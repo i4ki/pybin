@@ -27,4 +27,4 @@ class Binary(object):
             ELFIdent.debug(self.data)
             self.ehdr = Ehdr()
         except:
-            raise BinaryException("Error creating BinaryData.")
+            raise BinaryException("[BINARY] Error creating BinaryData.")

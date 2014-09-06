@@ -15,18 +15,18 @@ class BinaryArch(object):
     This class stores information about binary format.
     """
 
-    ELF32 = 0
-    ELF64 = 1
-    PE32 = 2
-    PE64 = 3
-    UNKNOWN = 4
+    UNKNOWN = 0
+    ELFCLASS32 = 1
+    ELFCLASS64 = 2
+    PE32 = 3
+    PE64 = 4
 
     arch = {
-        ELF32: 'ELF 32 bits',
-        ELF64: 'ELF 64 bits',
+        UNKNOWN: 'Unknown',
+        ELFCLASS32: 'ELF 32 bits',
+        ELFCLASS64: 'ELF 64 bits',
         PE32: 'PE 32 bits',
-        PE64: 'PE 64 bits',
-        UNKNOWN: 'Unknown'
+        PE64: 'PE 64 bits'
     }
 
 
@@ -103,13 +103,7 @@ class BinaryData(object):
         """
 
         if ELFIdent.is_elf(self.data):
-            klass = ELFIdent.get_arch(self.data)
-            if klass == 1:
-                return BinaryArch.ELF32
-            elif klass == 2:
-                return BinaryArch.ELF64
-            else:
-                return BinaryArch.UNKNOWN
+            return ELFIdent.get_arch(self.data)
 
         if self.is_pe():
             print "Get PECLASS"
