@@ -2,6 +2,8 @@
 
 from ..binary_data import BinaryData, BinaryArch
 
+from ident import ELFIdent, ELFIdentClass
+
 import binascii
 
 class EhdrFields64(object):
@@ -21,9 +23,6 @@ class EhdrFields32(object):
     ENTRY = 23
     ENTRY_SIZE = 27
 
-
-class EhdrException(Exception):
-    pass
 
 class Ehdr64(object):
     pass
@@ -54,23 +53,59 @@ class Ehdr32(object):
     def e_entry(self):
         return self.get_field(EhdrFields32.ENTRY_SIZE, EhdrFields32.ENTRY, -1)
 
+    """
+    def e_phoff(self):
+        return binascii.hexlify(str(self.__elf.binary[31:27:-1]))
+
+    def e_shoff(self):
+        return binascii.hexlify(str(self.__elf.binary[35:31:-1]))
+
+    def e_ehsize(self):
+        return binascii.hexlify(str(self.__elf.binary[41:39:-1]))
+
+    def e_phentsize(self):
+        return binascii.hexlify(str(self.__elf.binary[43:41:-1]))
+    
+    def e_phnum(self):
+        return binascii.hexlify(str(self.__elf.binary[45:43:-1]))
+
+    def e_shentsize(self):
+        return binascii.hexlify(str(self.__elf.binary[47:45:-1]))
+
+    def e_shnum(self):
+        return binascii.hexlify(str(self.__elf.binary[49:47:-1]))
+
+    def e_shstrndx(self):
+        return binascii.hexlify(str(self.__elf.binary[51:49:-1]))
+    """
+
 class Ehdr(object):
     """
     ELF Header.
     """
 
     def __init__(self):
-        try:
-            self.binary = BinaryData(None)
-            if self.binary.arch == BinaryArch.ELFCLASS32:
-                self.ehdr = Ehdr32(self.binary.get_data())
-                print self.ehdr.e_type()
-                print self.ehdr.e_machine()
-                print self.ehdr.e_version()
-                print self.ehdr.e_entry()
-            elif self.binary.arch == BinaryArch.ELFCLASS64:
-                self.ehdr = Ehdr64()
-            else:
-                raise EhdrException("[BINARY_DATA] Binary not recognized.")
-        except:
-            raise EhdrException("[BINARY_DATA] Error getting BinaryData.")
+
+        self.binary = BinaryData(None)
+        self.data = self.binary.get_data()
+
+        if self.binary.arch == BinaryArch.ELFCLASS32:
+		    self.ehdr = Ehdr32(self.binary.get_data())
+        elif self.binary.arch == BinaryArch.ELFCLASS64:
+		    self.ehdr = Ehdr64()
+        else:
+		    print "[BINARY_DATA] Binary not recognized."
+        self.debug()
+
+
+    def save_fields(self):
+        self.e_type = self.ehdr.e_type()
+        self.e_machine = self.ehdr.e_machine()
+        self.e_version = self.ehdr.e_version()
+        self.e_entry = self.ehdr.e_entry()
+
+    def debug(self):
+
+        print "ELF Header:"
+        ELFIdent.debug(self.data) 
+

@@ -1,8 +1,35 @@
 #!/usr/bin/python
 
+import binascii
 
 class ELFIdentException(Exception):
     pass
+
+class ELFIdentClass(object):
+
+    ELFCLASSNONE = 0
+    ELFCLASS32 = 1
+    ELFCLASS64 = 2
+
+    to_string = {
+        ELFCLASSNONE: "ELFNONE",
+        ELFCLASS32: "ELF32",
+        ELFCLASS64: "ELF64"
+    }
+
+
+class ELFIdentData(object):
+
+    ELFDATANONE = 0
+    ELFDATA2LSB = 1
+    ELFDATA2MSB = 2
+
+    to_string = {
+        ELFDATANONE: "ELFDATANONE",
+        ELFDATA2LSB: "2's complement, little endian",
+        ELFDATA2MSB: "2's complement, big endian"
+    }
+
 
 
 class ELFIdent(object):
@@ -22,13 +49,13 @@ class ELFIdent(object):
     @classmethod
     def get_field(cls, data, field):
         if data:
-            return data[field]
+            return format(data[field], '02x')
         else:
-            raise ELFIdentException("Invalid binary data")
+            raise ELFIdentException("[ERROR] ELFIdent data invalid.")
 
     @classmethod
     def EI_MAG0(cls, data):
-        return format(data[cls.MAG0], '02x')
+        return cls.get_field(data, cls.MAG0)
 
     @classmethod
     def EI_MAG1(cls, data):
@@ -61,9 +88,9 @@ class ELFIdent(object):
     @classmethod
     def is_elf(cls, data):
         return ((cls.EI_MAG0(data) == "7f") and
-                (cls.EI_MAG1(data) == 69) and
-                (cls.EI_MAG2(data) == 76) and
-                (cls.EI_MAG3(data) == 70))
+                (cls.EI_MAG1(data) == "45") and
+                (cls.EI_MAG2(data) == "4c") and
+                (cls.EI_MAG3(data) == "46"))
 
     @classmethod
     def get_arch(cls, data):
@@ -71,12 +98,11 @@ class ELFIdent(object):
 
     @classmethod
     def debug(cls, data):
-        print "ELF Identification:"
-        print "  EI_MAG0    = %s" % cls.EI_MAG0(data)
-        print "  EI_MAG1    = %c" % cls.EI_MAG1(data)
-        print "  EI_MAG2    = %c" % cls.EI_MAG2(data)
-        print "  EI_MAG3    = %c" % cls.EI_MAG3(data)
-        print "  EI_CLASS   = %s" % cls.EI_CLASS(data)
-        print "  EI_DATA    = %s" % cls.EI_DATA(data)
-        print "  EI_VERSION = %s" % cls.EI_VERSION(data)
-        print "  EI_PAD     = %s" % cls.EI_PAD(data)
+        print "  Magic: %s %s %s %s" % (cls.EI_MAG0(data),
+                                        cls.EI_MAG1(data), 
+                                        cls.EI_MAG2(data), 
+                                        cls.EI_MAG3(data))
+        print "  Class: %s" % ELFIdentClass.to_string[int(cls.EI_CLASS(data))]
+        print "  Data: %s" % ELFIdentData.to_string[int(cls.EI_DATA(data))]
+        #print "  EI_VERSION = %s" % cls.EI_VERSION(data)
+        #print "  EI_PAD     = %s" % cls.EI_PAD(data)

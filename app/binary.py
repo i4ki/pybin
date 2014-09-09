@@ -19,12 +19,8 @@ class Binary(object):
         Args:
           filename (str): binary file name. Ex.: /bin/bash
         """
-        try:
-            self.binary = BinaryData(filename)
-            self.data = self.binary.get_data()
-            self.arch = self.binary.get_arch()
-            self.binary.debug()
-            ELFIdent.debug(self.data)
-            self.ehdr = Ehdr()
-        except:
-            raise BinaryException("[BINARY] Error creating BinaryData.")
+        self.binary = BinaryData(filename)
+        self.data = self.binary.get_data()
+        self.arch = self.binary.get_arch()
+        self.binary.debug()
+        self.ehdr = Ehdr()

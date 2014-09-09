@@ -103,7 +103,7 @@ class BinaryData(object):
         """
 
         if ELFIdent.is_elf(self.data):
-            return ELFIdent.get_arch(self.data)
+            return int(ELFIdent.get_arch(self.data))
 
         if self.is_pe():
             print "Get PECLASS"
