@@ -23,6 +23,9 @@ class EhdrFields32(object):
     ENTRY = 23
     ENTRY_SIZE = 27
 
+    PHOFF = 27 
+    PHOFF_SIZE = 31
+
 
 class Ehdr64(object):
     pass
@@ -53,10 +56,10 @@ class Ehdr32(object):
     def e_entry(self):
         return self.get_field(EhdrFields32.ENTRY_SIZE, EhdrFields32.ENTRY, -1)
 
-    """
     def e_phoff(self):
-        return binascii.hexlify(str(self.__elf.binary[31:27:-1]))
+        return self.get_field(EhdrFields32.PHOFF_SIZE, EhdrFields32.PHOFF, -1)
 
+    """
     def e_shoff(self):
         return binascii.hexlify(str(self.__elf.binary[35:31:-1]))
 
@@ -103,6 +106,7 @@ class Ehdr(object):
         self.e_machine = self.ehdr.e_machine()
         self.e_version = self.ehdr.e_version()
         self.e_entry = self.ehdr.e_entry()
+        self.e_phoff = self.ehdr.e_phoff()
 
     def debug(self):
 

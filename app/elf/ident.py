@@ -104,5 +104,5 @@ class ELFIdent(object):
                                         cls.EI_MAG3(data))
         print "  Class: %s" % ELFIdentClass.to_string[int(cls.EI_CLASS(data))]
         print "  Data: %s" % ELFIdentData.to_string[int(cls.EI_DATA(data))]
-        #print "  EI_VERSION = %s" % cls.EI_VERSION(data)
+        print "  Version: %s" % cls.EI_VERSION(data)
         #print "  EI_PAD     = %s" % cls.EI_PAD(data)
