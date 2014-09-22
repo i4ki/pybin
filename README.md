@@ -1,3 +1,3 @@
-pyelf
+pybin
 =====
-Tools to analyse and study ELF files.
+Tools to analyse and study binary files.

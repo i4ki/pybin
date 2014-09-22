@@ -32,88 +32,88 @@ class BinaryArch(object):
 
 @Singleton
 class BinaryData(object):
-    """
-    BinaryData is a singleton class responsible to load the binary.
-    """
+	"""
+	BinaryData is a singleton class responsible to load the binary.
+	"""
 
-    def __init__(self, filename):
-        if os.path.isfile(filename) is True:
-            self.filename = filename
-            f = open(self.filename, "rb")
-            self.mem = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
-            self.data = bytearray(self.mem)
-            self.arch = self.get_arch()
-        else:
-            raise BinaryDataException("Invalid filename.")
+	def __init__(self, filename):
+		self.filename = filename
+		if os.path.isfile(self.filename):
+			f = open(self.filename, "rb")
+			self.mem = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+			self.data = bytearray(self.mem)
+			self.arch = self.get_arch()
+		else:
+			raise BinaryDataException("Invalid filename.")
 
-    def get_filename(self):
-        """
-        Returns:
-          Return the filename.
-        """
+	def get_filename(self):
+		"""
+		Returns:
+		  Return the filename.
+		"""
 
-        return self.filename
+		return self.filename
 
-    def get_data(self):
-        """
-        Returns:
-          Return the bytearray data.
-        """
+	def get_data(self):
+		"""
+		Returns:
+		  Return the bytearray data.
+	        """
 
-        return self.data
+		return self.data
 
-    def get_mem(self):
-        """
-        Returns:
-          Return the mmap loaded binary.
-        """
+	def get_mem(self):
+		"""
+		Returns:
+		  Return the mmap loaded binary.
+		"""
 
-        return self.mem
+		return self.mem
 
-    def __del__(self):
-        """
-        Closes the mmap.
-        """
+	def __del__(self):
+		"""
+		Closes the mmap.
+		"""
 
-        try:
-            self.mem.close()
-        except:
-            raise BinaryDataException("No binary memmory found.")
+#		try:
+#			self.mem.close()
+#		except:
+#			raise BinaryDataException("No binary memory found.")
 
-    def is_elf(self):
-        """
-        Verify the binary format, ELF or PE.
+	def is_elf(self):
+		"""
+		Verify the binary format, ELF or PE.
 
-        Returns:
-          True if successful, False otherwise.
-        """
+		Returns:
+		  True if successful, False otherwise.
+		"""
 
-        try:
-            return ELFIdent.is_elf(self.data)
-        except:
-            raise BinaryException("Invalid byte array.")
+		try:
+			return ELFIdent.is_elf(self.data)
+		except:
+			raise BinaryException("Invalid byte array.")
 
-    def is_pe(self):
-        pass
+	def is_pe(self):
+		pass
 
-    def get_arch(self):
-        """
-        Returns:
-          The binary class defined on BinaryArch class.
-        """
+	def get_arch(self):
+		"""
+		Returns:
+		  The binary class defined on BinaryArch class.
+		"""
 
-        if ELFIdent.is_elf(self.data):
-            return int(ELFIdent.get_arch(self.data))
+		if ELFIdent.is_elf(self.data):
+			return int(ELFIdent.get_arch(self.data))
 
-        if self.is_pe():
-            print "Get PECLASS"
+		if self.is_pe():
+			print("Get PECLASS")
 
-        return BinaryArch.UNKNOWN
+		return BinaryArch.UNKNOWN
 
-    def debug(self):
-        """
-        Binary information
-        """
+	def debug(self):
+		"""
+		Binary information
+		"""
 
-        print "File format: %s" % BinaryArch.arch[self.arch]
+		print("File format: %s" % BinaryArch.arch[self.arch])
 

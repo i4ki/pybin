@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-from ..binary_data import BinaryData, BinaryArch
+from app.binary_data import BinaryData, BinaryArch
 
-from ident import ELFIdent, ELFIdentClass
+from app.elf.ident import ELFIdent, ELFIdentClass
 
 import binascii
 
@@ -83,33 +83,33 @@ class Ehdr32(object):
     """
 
 class Ehdr(object):
-    """
-    ELF Header.
-    """
+	"""
+	ELF Header.
+	"""
 
-    def __init__(self):
+	def __init__(self):
 
-        self.binary = BinaryData(None)
-        self.data = self.binary.get_data()
+		self.binary = BinaryData(None)
+		self.data = self.binary.get_data()
 
-        if self.binary.arch == BinaryArch.ELFCLASS32:
-		    self.ehdr = Ehdr32(self.binary.get_data())
-        elif self.binary.arch == BinaryArch.ELFCLASS64:
-		    self.ehdr = Ehdr64()
-        else:
-		    print "[BINARY_DATA] Binary not recognized."
-        self.debug()
+		if self.binary.arch == BinaryArch.ELFCLASS32:
+			self.ehdr = Ehdr32(self.binary.get_data())
+		elif self.binary.arch == BinaryArch.ELFCLASS64:
+			self.ehdr = Ehdr64()
+		else:
+			print("[BINARY_DATA] Binary not recognized.")
+		self.debug()
 
 
-    def save_fields(self):
-        self.e_type = self.ehdr.e_type()
-        self.e_machine = self.ehdr.e_machine()
-        self.e_version = self.ehdr.e_version()
-        self.e_entry = self.ehdr.e_entry()
-        self.e_phoff = self.ehdr.e_phoff()
+	def save_fields(self):
+		self.e_type = self.ehdr.e_type()
+		self.e_machine = self.ehdr.e_machine()
+		self.e_version = self.ehdr.e_version()
+		self.e_entry = self.ehdr.e_entry()
+		self.e_phoff = self.ehdr.e_phoff()
 
-    def debug(self):
+	def debug(self):
 
-        print "ELF Header:"
-        ELFIdent.debug(self.data) 
+		print("ELF Header:")
+		ELFIdent.debug(self.data) 
 
