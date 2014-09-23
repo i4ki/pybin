@@ -1,13 +1,15 @@
 #!/usr/bin/python
 
-from app.binary_data import BinaryData, BinaryArch
+from ..binary_data import BinaryData, BinaryArch
 
-from app.elf.ident import ELFIdent, ELFIdentClass
+from .ident import ELFIdent
 
 import binascii
 
+
 class EhdrFields64(object):
     pass
+
 
 class EhdrFields32(object):
 
@@ -23,12 +25,13 @@ class EhdrFields32(object):
     ENTRY = 23
     ENTRY_SIZE = 27
 
-    PHOFF = 27 
+    PHOFF = 27
     PHOFF_SIZE = 31
 
 
 class Ehdr64(object):
     pass
+
 
 class Ehdr32(object):
     """
@@ -39,7 +42,7 @@ class Ehdr32(object):
         self.binary = binary
 
     def get_field(self, start, end, direction=None):
-        if direction != None:
+        if direction is not None:
             return binascii.hexlify(str(self.binary[start:end:direction]))
         else:
             return binascii.hexlify(str(self.binary[start:end]))
@@ -59,57 +62,33 @@ class Ehdr32(object):
     def e_phoff(self):
         return self.get_field(EhdrFields32.PHOFF_SIZE, EhdrFields32.PHOFF, -1)
 
-    """
-    def e_shoff(self):
-        return binascii.hexlify(str(self.__elf.binary[35:31:-1]))
-
-    def e_ehsize(self):
-        return binascii.hexlify(str(self.__elf.binary[41:39:-1]))
-
-    def e_phentsize(self):
-        return binascii.hexlify(str(self.__elf.binary[43:41:-1]))
-    
-    def e_phnum(self):
-        return binascii.hexlify(str(self.__elf.binary[45:43:-1]))
-
-    def e_shentsize(self):
-        return binascii.hexlify(str(self.__elf.binary[47:45:-1]))
-
-    def e_shnum(self):
-        return binascii.hexlify(str(self.__elf.binary[49:47:-1]))
-
-    def e_shstrndx(self):
-        return binascii.hexlify(str(self.__elf.binary[51:49:-1]))
-    """
 
 class Ehdr(object):
-	"""
-	ELF Header.
-	"""
+    """
+    ELF Header.
+    """
 
-	def __init__(self):
+    def __init__(self):
 
-		self.binary = BinaryData(None)
-		self.data = self.binary.get_data()
+        self.binary = BinaryData(None)
+        self.data = self.binary.get_data()
 
-		if self.binary.arch == BinaryArch.ELFCLASS32:
-			self.ehdr = Ehdr32(self.binary.get_data())
-		elif self.binary.arch == BinaryArch.ELFCLASS64:
-			self.ehdr = Ehdr64()
-		else:
-			print("[BINARY_DATA] Binary not recognized.")
-		self.debug()
+        if self.binary.arch == BinaryArch.ELFCLASS32:
+            self.ehdr = Ehdr32(self.binary.get_data())
+        elif self.binary.arch == BinaryArch.ELFCLASS64:
+            self.ehdr = Ehdr64()
+        else:
+            print("[BINARY_DATA] Binary not recognized.")
+        self.debug()
 
+    def save_fields(self):
+        self.e_type = self.ehdr.e_type()
+        self.e_machine = self.ehdr.e_machine()
+        self.e_version = self.ehdr.e_version()
+        self.e_entry = self.ehdr.e_entry()
+        self.e_phoff = self.ehdr.e_phoff()
 
-	def save_fields(self):
-		self.e_type = self.ehdr.e_type()
-		self.e_machine = self.ehdr.e_machine()
-		self.e_version = self.ehdr.e_version()
-		self.e_entry = self.ehdr.e_entry()
-		self.e_phoff = self.ehdr.e_phoff()
+    def debug(self):
 
-	def debug(self):
-
-		print("ELF Header:")
-		ELFIdent.debug(self.data) 
-
+        print("ELF Header:")
+        ELFIdent.debug(self.data)

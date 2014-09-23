@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
-from elf import ELFIdent, Ehdr
-from pe import PEIdent
-from binary_data import BinaryData
+from .elf import Ehdr
+from .binary_data import BinaryData
 
 
 class BinaryException(Exception):

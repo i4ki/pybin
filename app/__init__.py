@@ -1,2 +1,2 @@
-from binary import Binary
-from binary import BinaryException
+from .binary import Binary
+from .binary import BinaryException

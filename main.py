@@ -1,8 +1,6 @@
-import sys
-sys.path.append('app/')
+#!/usr/bin/python
 
-from app.binary import Binary, BinaryException
+from app import Binary
 
-if __name__ ==  '__main__':
+if __name__ == '__main__':
     b = Binary("/bin/bash")
-
