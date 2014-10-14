@@ -79,25 +79,7 @@ class Ehdr32(object):
         if (self.e_ident[0:4] == '\x7fELF'):
             self.ident = ELFIdent(self.e_ident)
 
-        if (self.e_ident[0:4]             != '\x7fELF'):
-            print "Not a valid ELF file"
-            return
-        else:
-            print "VALID ELF"
-            print (self.e_ident,
-                   self.e_type,
-                   self.e_machine,
-                   self.e_version,
-                   self.e_entry,
-                   self.e_phoff,
-                   self.e_shoff,
-                   self.e_flags,
-                   self.e_ehsize,
-                   self.e_phentsize,
-                   self.e_phnum,
-                   self.e_shentsize,
-                   self.e_shnum,
-                   self.e_shstrndx)
+        return self.ident.is_elf()
 
     def type(self):
         return self.e_type
@@ -127,7 +109,8 @@ class Ehdr(object):
 
         if self.binary.arch == BinaryArch.ELFCLASS32:
             self.ehdr = Ehdr32(self.binary.get_data())
-            self.ehdr.load()
+            if not self.ehdr.load():
+                print("[BINARY_DATA] Not ELF")
         elif self.binary.arch == BinaryArch.ELFCLASS64:
             self.ehdr = Ehdr64()
         else:
