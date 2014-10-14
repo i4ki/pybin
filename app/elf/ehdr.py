@@ -4,6 +4,7 @@ from ..binary_data import BinaryData, BinaryArch
 
 from .ident import ELFIdent
 
+import struct
 import binascii
 
 
@@ -38,29 +39,80 @@ class Ehdr32(object):
     ELF header.
     """
 
+    Elf32_Ehdr = "<16sHHIIIIIHHHHHH"
+
     def __init__(self, binary):
         self.binary = binary
 
-    def get_field(self, start, end, direction=None):
-        if direction is not None:
-            return binascii.hexlify(str(self.binary[start:end:direction]))
+        (self.e_ident,
+         self.e_type,
+         self.e_machine,
+         self.e_version,
+         self.e_entry,
+         self.e_phoff,
+         self.e_shoff,
+         self.e_flags,
+         self.e_ehsize,
+         self.e_phentsize,
+         self.e_phnum,
+         self.e_shentsize,
+         self.e_shnum,
+         self.e_shstrndx) = [0] * 14
+
+    def load(self):
+        (self.e_ident,
+         self.e_type,
+         self.e_machine,
+         self.e_version,
+         self.e_entry,
+         self.e_phoff,
+         self.e_shoff,
+         self.e_flags,
+         self.e_ehsize,
+         self.e_phentsize,
+         self.e_phnum,
+         self.e_shentsize,
+         self.e_shnum,
+         self.e_shstrndx) = struct.unpack(
+             self.Elf32_Ehdr, self.binary[0:struct.calcsize(self.Elf32_Ehdr)])
+
+        if (self.e_ident[0:4] == '\x7fELF'):
+            self.ident = ELFIdent(self.e_ident)
+
+        if (self.e_ident[0:4]             != '\x7fELF'):
+            print "Not a valid ELF file"
+            return
         else:
-            return binascii.hexlify(str(self.binary[start:end]))
+            print "VALID ELF"
+            print (self.e_ident,
+                   self.e_type,
+                   self.e_machine,
+                   self.e_version,
+                   self.e_entry,
+                   self.e_phoff,
+                   self.e_shoff,
+                   self.e_flags,
+                   self.e_ehsize,
+                   self.e_phentsize,
+                   self.e_phnum,
+                   self.e_shentsize,
+                   self.e_shnum,
+                   self.e_shstrndx)
 
-    def e_type(self):
-        return self.get_field(EhdrFields32.TYPE, EhdrFields32.TYPE_SIZE)
+    def type(self):
+        return self.e_type
 
-    def e_machine(self):
-        return self.get_field(EhdrFields32.MACHINE, EhdrFields32.MACHINE_SIZE)
+    def machine(self):
+        return self.e_machine
 
-    def e_version(self):
-        return self.get_field(EhdrFields32.VERSION, EhdrFields32.VERSION_SIZE)
+    def version(self):
+        return self.e_version
 
-    def e_entry(self):
-        return self.get_field(EhdrFields32.ENTRY_SIZE, EhdrFields32.ENTRY, -1)
+    def entry(self):
+        return self.e_entry
 
     def e_phoff(self):
-        return self.get_field(EhdrFields32.PHOFF_SIZE, EhdrFields32.PHOFF, -1)
+        return self.e_phoff
 
 
 class Ehdr(object):
@@ -75,6 +127,7 @@ class Ehdr(object):
 
         if self.binary.arch == BinaryArch.ELFCLASS32:
             self.ehdr = Ehdr32(self.binary.get_data())
+            self.ehdr.load()
         elif self.binary.arch == BinaryArch.ELFCLASS64:
             self.ehdr = Ehdr64()
         else:
@@ -82,13 +135,14 @@ class Ehdr(object):
         self.debug()
 
     def save_fields(self):
-        self.e_type = self.ehdr.e_type()
-        self.e_machine = self.ehdr.e_machine()
-        self.e_version = self.ehdr.e_version()
-        self.e_entry = self.ehdr.e_entry()
-        self.e_phoff = self.ehdr.e_phoff()
+        self.e_type = self.ehdr.type()
+        self.e_machine = self.ehdr.machine()
+        self.e_version = self.ehdr.version()
+        self.e_entry = self.ehdr.entry()
+        self.e_phoff = self.ehdr.phoff()
 
     def debug(self):
 
         print("ELF Header:")
-        ELFIdent.debug(self.data)
+        ident = ELFIdent(self.data)
+        ident.debug()

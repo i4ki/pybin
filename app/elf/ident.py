@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import struct
+import binascii
 
 class ELFIdentException(Exception):
     pass
@@ -36,72 +38,81 @@ class ELFIdent(object):
     ELF identification class.
     """
 
-    MAG0 = 0
-    MAG1 = 1
-    MAG2 = 2
-    MAG3 = 3
-    CLASS = 4
-    DATA = 5
-    VERSION = 6
-    PAD = 7
+    ident_format = "<1s1s1s1s1s1s1s1s1s7s"
 
-    @classmethod
-    def get_field(cls, data, field):
-        if data:
-            return format(data[field], '02x')
-        else:
-            raise ELFIdentException("[ERROR] ELFIdent data invalid.")
+    # e_ident
+    EI_MAG0         = 0     # File identification
+    EI_MAG1         = 1     # File identification
+    EI_MAG2         = 2     # File identification
+    EI_MAG3         = 3     # File identification
+    EI_CLASS        = 4     # File class
+    EI_DATA         = 5     # Data encoding
+    EI_VERSION      = 6     # File version
+    EI_OSABI        = 7     # Operating System/ABI spec
+    EI_OSABIVERSION = 8     # ABI Version
+    EI_PAD          = 9     # Start of padding bytes
+    EI_NIDENT       = 16    # Size of ident
 
-    @classmethod
-    def EI_MAG0(cls, data):
-        return cls.get_field(data, cls.MAG0)
+    def __init__(self, e_ident):
+        (self.ei_mag0,
+         self.ei_mag1,
+         self.ei_mag2,
+         self.ei_mag3,
+         self.ei_class,
+         self.ei_data,
+         self.ei_version,
+         self.ei_osabi,
+         self.ei_osabiversion,
+         self.ei_pad) = struct.unpack(
+             self.ident_format, e_ident[0:struct.calcsize(self.ident_format)])
 
-    @classmethod
-    def EI_MAG1(cls, data):
-        return cls.get_field(data, cls.MAG1)
+    def MAG0(cls):
+        return binascii.hexlify(cls.ei_mag0)
 
-    @classmethod
-    def EI_MAG2(cls, data):
-        return cls.get_field(data, cls.MAG2)
+    def MAG1(cls):
+        return binascii.hexlify(cls.ei_mag1)
 
-    @classmethod
-    def EI_MAG3(cls, data):
-        return cls.get_field(data, cls.MAG3)
+    def MAG2(cls):
+        return binascii.hexlify(cls.ei_mag2)
 
-    @classmethod
-    def EI_CLASS(cls, data):
-        return cls.get_field(data, cls.CLASS)
+    def MAG3(cls):
+        return binascii.hexlify(cls.ei_mag3)
 
-    @classmethod
-    def EI_DATA(cls, data):
-        return cls.get_field(data, cls.DATA)
+    def CLASS(cls):
+        return binascii.hexlify(cls.ei_class)
 
-    @classmethod
-    def EI_VERSION(cls, data):
-        return cls.get_field(data, cls.VERSION)
+    def DATA(cls):
+        return binascii.hexlify(cls.ei_data)
 
-    @classmethod
-    def EI_PAD(cls, data):
-        return cls.get_field(data, cls.PAD)
+    def VERSION(cls):
+        return binascii.hexlify(cls.ei_version)
 
-    @classmethod
-    def is_elf(cls, data):
-        return ((cls.EI_MAG0(data) == "7f") and
-                (cls.EI_MAG1(data) == "45") and
-                (cls.EI_MAG2(data) == "4c") and
-                (cls.EI_MAG3(data) == "46"))
+    def OSABI(cls):
+        return binascii.hexlify(cls.ei_osabi)
 
-    @classmethod
-    def get_arch(cls, data):
-        return cls.EI_CLASS(data)
+    def OSABIVERSION(cls):
+        return binascii.hexlify(cls.ei_osabiversion)
 
-    @classmethod
-    def debug(cls, data):
-        print("  Magic: %s %s %s %s" % (cls.EI_MAG0(data),
-                                        cls.EI_MAG1(data),
-                                        cls.EI_MAG2(data),
-                                        cls.EI_MAG3(data)))
-        print("  Class: %s" % ELFIdentClass.to_string[int(cls.EI_CLASS(data))])
-        print("  Data: %s" % ELFIdentData.to_string[int(cls.EI_DATA(data))])
-        print("  Version: %s" % cls.EI_VERSION(data))
+    def PAD(cls):
+        return binascii.hexlify(cls.ei_pad)
+
+    def is_elf(cls):
+        return ((cls.MAG0() == "7f") and
+                (cls.MAG1() == "45") and
+                (cls.MAG2() == "4c") and
+                (cls.MAG3() == "46"))
+
+    def get_arch(cls):
+        return cls.CLASS()
+
+    def debug(cls):
+        print("  Magic: %s %s %s %s" % (cls.MAG0(),
+                                        cls.MAG1(),
+                                        cls.MAG2(),
+                                        cls.MAG3()))
+        print("  Class: %s" % ELFIdentClass.to_string[int(cls.CLASS())])
+        print("  Data: %s" % ELFIdentData.to_string[int(cls.DATA())])
+        print("  Version: %s" % cls.VERSION())
+        print("  OSABI: %s" % cls.OSABI())
+        print("  OSABIVERSION: %s" % cls.OSABI())
         # print "  EI_PAD     = %s" % cls.EI_PAD(data)

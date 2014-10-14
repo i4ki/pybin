@@ -88,7 +88,7 @@ class BinaryData(object):
           True if successful, False otherwise.
         """
 
-        return ELFIdent.is_elf(self.data)
+        return ELFIdent(self.data).is_elf()
 
     def is_pe(self):
         pass
@@ -98,9 +98,9 @@ class BinaryData(object):
         Returns:
           The binary class defined on BinaryArch class.
         """
-
-        if ELFIdent.is_elf(self.data):
-            return int(ELFIdent.get_arch(self.data))
+        ident = ELFIdent(self.data)
+        if ident.is_elf():
+            return int(ident.get_arch())
 
         if self.is_pe():
             print("Get PECLASS")
